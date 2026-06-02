@@ -1,0 +1,82 @@
+========================================================================
+EJERCICIO 2 - CONCLUSIONES Y HALLAZGOS
+========================================================================
+
+OBJETIVO CUMPLIDO
+-----------------
+Se automatizaron los cuatro casos solicitados sobre la API REST de la
+PetStore, identificando en cada uno las ENTRADAS (request/body/params),
+las SALIDAS (response/status), los TEST (validaciones match/status) y
+las VARIABLES (petId, idCreado, encontrada).
+
+
+DETALLE POR CASO
+----------------
+  CASO 1 - POST /pet (Anadir mascota)
+    Entrada : JSON de la mascota (id, name, status, category, tags...)
+    Salida  : status 200 + mascota creada en el cuerpo de respuesta
+    Test    : status == 200, name == "Firulais", status == "available"
+    Variable: petId (id unico generado por tiempo), idCreado
+
+  CASO 2 - GET /pet/{id} (Consultar por ID)
+    Entrada : el petId en la ruta
+    Salida  : status 200 + datos de la mascota
+    Test    : status == 200, id coincide, name == "Firulais"
+
+  CASO 3 - PUT /pet (Actualizar nombre y status a "sold")
+    Entrada : JSON con name = "Firulais Modificado", status = "sold"
+    Salida  : status 200 + mascota actualizada
+    Test    : status == 200, name == "Firulais Modificado", status == "sold"
+
+  CASO 4 - GET /pet/findByStatus?status=sold (Consultar por estatus)
+    Entrada : query param status = sold
+    Salida  : status 200 + lista (array) de mascotas con ese estatus
+    Test    : status == 200, lista no vacia, nuestra mascota presente
+              y con status "sold"
+
+
+ENFOQUE TECNICO
+---------------
+  - Karate permite escribir pruebas de API en Gherkin, lo que las hace
+    muy legibles: cada paso es casi lenguaje natural.
+
+  - El manejo de JSON es nativo: se compara con "match" sin necesidad de
+    librerias extra de parseo.
+
+  - Se uso un petId dinamico basado en Date.now() para que las pruebas
+    sean idempotentes y repetibles sin colisiones entre corridas.
+
+  - Los cuatro casos se encadenaron en un solo escenario porque comparten
+    estado (la misma mascota), reflejando un flujo real de negocio.
+
+
+HALLAZGOS DE LA API
+-------------------
+  1. La PetStore de Swagger es un entorno PUBLICO de demostracion. Esto
+     implica que los datos son compartidos y a veces hay latencia o
+     respuestas cacheadas. Por eso findByStatus puede devolver muchas
+     mascotas de otros usuarios; se filtro por nuestro petId para validar.
+
+  2. El endpoint acepta tanto la creacion (POST) como la actualizacion
+     (PUT) con la misma estructura de cuerpo, lo cual es comodo.
+
+  3. No requiere autenticacion, lo que simplifica las pruebas pero tambien
+     evidencia que es solo un entorno de practica, no productivo.
+
+
+POSIBLES MEJORAS A FUTURO
+-------------------------
+  - Anadir casos negativos: consultar un id inexistente (espera 404),
+    enviar un body invalido (espera 400/500).
+  - Validar el esquema completo de la respuesta con match contra un
+    JSON de referencia.
+  - Anadir el caso DELETE /pet/{id} para cerrar el ciclo de vida (CRUD).
+  - Integrar en un pipeline CI para ejecucion automatica.
+
+
+CONCLUSION FINAL
+----------------
+Las pruebas confirman que las operaciones principales del recurso "pet"
+(crear, consultar, actualizar y filtrar por estatus) funcionan segun lo
+esperado. Karate demostro ser una herramienta agil para pruebas REST,
+con reportes claros y baja curva de configuracion.

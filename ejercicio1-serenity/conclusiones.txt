@@ -1,0 +1,54 @@
+========================================================================
+EJERCICIO 1 - CONCLUSIONES Y HALLAZGOS
+========================================================================
+
+OBJETIVO CUMPLIDO
+-----------------
+Se automatizo con exito el flujo de compra E2E en SauceDemo, cubriendo
+los cinco puntos solicitados: autenticacion, agregar dos productos,
+visualizar el carrito, completar el formulario y finalizar la compra
+hasta el mensaje "Thank you for your order!".
+
+
+ENFOQUE TECNICO
+---------------
+  - Se uso Serenity BDD con el patron Screenplay, que separa muy bien
+    QUE hace el usuario (acciones) de DONDE estan los elementos (Page
+    Objects). Esto hace el codigo mas mantenible y legible.
+
+  - Los escenarios se escribieron en Gherkin en espanol, lo que permite
+    que una persona de negocio entienda la prueba sin saber programar.
+
+  - Se aplico data-driven con una tabla de productos en el .feature,
+    de modo que agregar mas productos es trivial (solo se anaden filas).
+
+
+HALLAZGOS DE LA APLICACION
+--------------------------
+  1. SauceDemo arma los id de los botones "Add to cart" usando el nombre
+     del producto en minusculas y con guiones (ej: add-to-cart-sauce-labs-backpack).
+     Se aprovecho este patron para generar selectores dinamicos.
+
+  2. La aplicacion es estable y deterministica, ideal para automatizacion
+     de aprendizaje. No se detectaron tiempos de espera problematicos.
+
+  3. El mensaje final "Thank you for your order!" se valido con
+     "contains" para ser tolerante a diferencias de mayusculas/espacios.
+
+
+POSIBLES MEJORAS A FUTURO
+-------------------------
+  - Anadir escenarios negativos (usuario bloqueado: locked_out_user,
+    credenciales invalidas) para ampliar la cobertura.
+  - Validar precios y totales en el resumen de la compra.
+  - Integrar la ejecucion en un pipeline CI (GitHub Actions) para
+    correr la prueba en cada push automaticamente.
+  - Parametrizar la URL y los datos de usuario en variables de entorno.
+
+
+CONCLUSION FINAL
+----------------
+La prueba demuestra que el flujo critico de compra de SauceDemo funciona
+correctamente de principio a fin. El framework elegido (Serenity BDD)
+genera reportes ricos con evidencia visual, lo que facilita la revision
+y da trazabilidad completa de cada paso ejecutado.

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ===================================================================== -->
+<!-- pom.xml: aquí es donde Maven (el ñaño que organiza la obra) se entera  -->
+<!-- de qué librerías hay que bajar y cómo se cocina el proyecto. Todo lo   -->
+<!-- que está aquí adentro es la "lista del mercado" pa' que compile bien.  -->
+<!-- ===================================================================== -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <!-- La versión del modelo del pom, casi siempre 4.0.0, no le muevas ñaño -->
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- groupId: el apellido del proyecto, como decir "los de la familia QA" -->
+    <groupId>com.qa.ecuador</groupId>
+    <!-- artifactId: el nombre propio del proyecto, así se llama la guagua -->
+    <artifactId>saucedemo-serenity-e2e</artifactId>
+    <!-- version: en qué versión va el proyecto, 1.0.0 porque recién nace -->
+    <version>1.0.0</version>
+
+    <!-- properties: aquí dejamos anotadas las versiones pa' no repetir, full vivo -->
+    <properties>
+        <!-- Le decimos a Java que use la versión 11, ni muy nueva ni muy vieja -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <!-- Que todo lo lea en UTF-8 pa' que las tildes no salgan hechas un arroz -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Versiones de las librerías, anotadas aquí pa' tenerlas a la mano -->
+        <serenity.version>3.9.8</serenity.version>
+        <cucumber.version>7.14.0</cucumber.version>
+        <junit.version>5.10.0</junit.version>
+    </properties>
+
+    <!-- dependencies: la lista del mercado, todo lo que hay que traer del registro -->
+    <dependencies>
+
+        <!-- Serenity core: el corazón de la herramienta, sin esto no hay nada ñaño -->
+        <dependency>
+            <groupId>net.serenity-bdd</groupId>
+            <artifactId>serenity-core</artifactId>
+            <version>${serenity.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Serenity con Cucumber: pa' que Serenity entienda los archivos .feature -->
+        <dependency>
+            <groupId>net.serenity-bdd</groupId>
+            <artifactId>serenity-cucumber</artifactId>
+            <version>${serenity.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Serenity screenplay-webdriver: pa' manejar el navegador con estilo -->
+        <dependency>
+            <groupId>net.serenity-bdd</groupId>
+            <artifactId>serenity-screenplay-webdriver</artifactId>
+            <version>${serenity.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit 5: el ñaño que corre las pruebas y dice si pasó o se chompó -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Cucumber con JUnit Platform: el pegamento entre Cucumber y JUnit -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- AssertJ: pa' hacer las validaciones bien bonitas y legibles -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.24.2</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <!-- build: aquí se configuran los plugins, las herramientas de la obra -->
+    <build>
+        <plugins>
+
+            <!-- Plugin del compilador: el albañil que convierte el código en algo que corre -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+
+            <!-- Failsafe: el plugin que corre las pruebas de integración (las E2E) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <!-- Le decimos qué archivos son pruebas: los que terminen en Runner -->
+                    <includes>
+                        <include>**/*Runner.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!-- integration-test: corre las pruebas; verify: revisa que todo salió bien -->
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Plugin de reportes de Serenity: el que arma el reporte bonito al final -->
+            <plugin>
+                <groupId>net.serenity-bdd.maven.plugins</groupId>
+                <artifactId>serenity-maven-plugin</artifactId>
+                <version>${serenity.version}</version>
+                <executions>
+                    <execution>
+                        <id>serenity-reports</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <!-- aggregate: junta toda la info y arma el reporte HTML -->
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

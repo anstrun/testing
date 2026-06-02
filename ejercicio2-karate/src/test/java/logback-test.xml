@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- logback-test.xml: configura cómo se ven los logs cuando corren las pruebas.
+     Sin esto Karate igual funciona, pero los logs salen mas ordenaditos asi. -->
+<configuration>
+
+    <!-- appender: a donde van los mensajes. STDOUT = la consola -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- el formato de cada linea de log: hora, nivel, mensaje -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- bajamos el ruido de Karate a INFO pa' no llenarnos de mensajes -->
+    <logger name="com.intuit.karate" level="INFO"/>
+
+    <!-- nivel general: WARN, solo avisos importantes -->
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

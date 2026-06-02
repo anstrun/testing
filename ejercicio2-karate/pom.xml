@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ===================================================================== -->
+<!-- pom.xml del Ejercicio 2: aquí Maven se entera de que vamos a usar       -->
+<!-- Karate pa' probar APIs REST. Karate es bacán porque las pruebas se      -->
+<!-- escriben en Gherkin y maneja JSON sin hacerse bolas, ñaño.              -->
+<!-- ===================================================================== -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- El apellido del proyecto -->
+    <groupId>com.qa.ecuador</groupId>
+    <!-- El nombre de la guagua -->
+    <artifactId>petstore-karate-api</artifactId>
+    <!-- Recién nace, version 1.0.0 -->
+    <version>1.0.0</version>
+
+    <properties>
+        <!-- Java 11 pa' estar tranquilos -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <!-- Que lea las tildes bien -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Version de Karate anotada aquí pa' tenerla a la mano -->
+        <karate.version>1.4.1</karate.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- karate-junit5: trae todo Karate y lo conecta con JUnit 5.
+             Con esta sola dependencia ya tenemos casi todo lo que se necesita. -->
+        <dependency>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-junit5</artifactId>
+            <version>${karate.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <!-- testResources: le decimos a Maven que los archivos .feature que
+             están junto al código Java también se copien como recursos. -->
+        <testResources>
+            <testResource>
+                <directory>src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <!-- El compilador, el albañil de siempre -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+
+            <!-- Surefire: el plugin que corre las pruebas unitarias/JUnit -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <!-- Le decimos qué archivos correr: los que terminen en Test o Runner -->
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Runner.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
