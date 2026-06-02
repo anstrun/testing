@@ -1,0 +1,95 @@
+===============================================================================
+ CONCLUSIONES - PRUEBA DE CARGA DEL SERVICIO DE LOGIN
+ Ejercicio 1 - Script de Pruebas de Carga
+===============================================================================
+
+Estas conclusiones se basan en la ejecucion del escenario de carga sostenida
+(PROFILE=soak: rampa -> meseta ~140 VUs -> bajada, ~1 hora) y estan alineadas
+con las metricas del InformeResultados analizado.
+
+-------------------------------------------------------------------------------
+1. RESULTADOS OBSERVADOS (corrida de referencia)
+-------------------------------------------------------------------------------
+  - Total de peticiones (http_reqs) : 276.650
+  - Throughput promedio             : 73,18 req/s  (muy por encima del minimo de 20 TPS)
+  - VUs maximos                     : 140
+  - Checks exitosos                 : 97,55%  (269.891 OK / 6.759 fallidos)
+  - Tasa de error (http_req_failed) : 2,44%   (por debajo del umbral del 3%)
+  - Tiempo de respuesta promedio    : 861,68 ms
+  - Mediana                         : 613,42 ms
+  - p(90)                           : 1,28 s
+  - p(95)                           : 1,57 s   (SUPERA el umbral de 1,5 s)
+  - Maximo                          : 29,93 s  (valor atipico, sintoma de saturacion)
+  - Datos recibidos / enviados      : 842 MB / 588 MB
+
+-------------------------------------------------------------------------------
+2. CUMPLIMIENTO DE LOS CRITERIOS DE ACEPTACION
+-------------------------------------------------------------------------------
+  Criterio                              Objetivo         Resultado     Estado
+  ------------------------------------  ---------------  ------------  --------
+  Throughput minimo                     >= 20 TPS        73,18 TPS     CUMPLE
+  Tasa de error                         < 3%             2,44%         CUMPLE
+  Tiempo de respuesta (p95)             <= 1,5 s         1,57 s        NO CUMPLE
+
+  Conclusion sobre los criterios: 2 de 3 se cumplen. El throughput y la tasa de
+  error estan dentro de lo aceptable, pero el tiempo de respuesta en el p95
+  supera el limite de 1,5 s, por lo que la prueba NO puede considerarse
+  completamente exitosa.
+
+-------------------------------------------------------------------------------
+3. HALLAZGOS PRINCIPALES
+-------------------------------------------------------------------------------
+  a) Degradacion temporal del servidor. En la ventana ~01:50-02:00 las
+     peticiones por segundo cayeron de >100/s a ~10-25/s mientras los VUs se
+     mantuvieron estables en ~140. Esto indica que las peticiones se encolaron:
+     el servidor dejo de atender al ritmo esperado.
+
+  b) Errores concentrados del lado del servidor. De los 6.759 errores, ~5.987
+     (cerca del 89%) son HTTP 5xx en la Etapa 1. Los 5xx son errores del backend,
+     no de los datos de entrada, y coinciden temporalmente con la caida del
+     throughput.
+
+  c) Errores de cliente menores. 769 errores HTTP 4xx (Etapa 1) requieren
+     revision aparte: pueden deberse a validaciones legitimas del servicio o a
+     datos de prueba puntuales, y no deben mezclarse con el problema de capacidad.
+
+  d) Cola y tiempos atipicos. El maximo de 29,93 s y el p95 de 1,57 s son
+     consecuencia directa del encolamiento durante la saturacion: el bajon del
+     grafico, los errores 5xx y los tiempos altos son tres vistas del mismo evento.
+
+  e) Recuperacion. Tras las 02:00 el throughput volvio a ~80-100/s hasta el final
+     (~02:35), lo que confirma que el cuello de botella fue temporal y el sistema
+     se recupero por si mismo.
+
+-------------------------------------------------------------------------------
+4. CONCLUSION GENERAL
+-------------------------------------------------------------------------------
+  El servicio soporta razonablemente la carga en estado estable (disponibilidad
+  del 97,55% y mediana de 613 ms, un buen valor), pero NO se comporta de forma
+  consistente bajo concurrencia sostenida. Existe un punto claro de degradacion
+  donde la capacidad de procesamiento cae, los errores 5xx se disparan y los
+  tiempos de respuesta se elevan a valores inaceptables.
+
+  Aunque la tasa de error promedio cumple el umbral del 3%, el objetivo de
+  tiempo de respuesta (1,5 s) se incumple en el p95 y hay un periodo de
+  inestabilidad evidente. El patron apunta a un cuello de botella en el backend
+  o en un recurso compartido (base de datos, pool de conexiones, CPU o memoria)
+  que se agota cuando la concurrencia se mantiene alta.
+
+-------------------------------------------------------------------------------
+5. RECOMENDACIONES
+-------------------------------------------------------------------------------
+  1. Revisar los logs del servidor en la ventana 01:50-02:00 para hallar la
+     causa raiz de los 5xx (memoria, CPU, timeouts de BD o limite del pool de
+     conexiones).
+  2. Monitorear recursos del servidor (CPU, memoria, conexiones) durante la
+     prueba, no solo las metricas del cliente, para correlacionar la caida.
+  3. Investigar por separado los 769 errores 4xx para descartar datos invalidos.
+  4. Ajustar el dimensionamiento del servidor o aplicar autoescalado para
+     absorber los picos de concurrencia.
+  5. Definir formalmente los SLA de tiempo de respuesta y tasa de error, y
+     re-ejecutar para validar que el p95 se mantenga < 1,5 s de forma consistente.
+  6. Ejecutar una prueba con rampa gradual (escenario tipo 'breakpoint') para
+     identificar el punto de quiebre exacto (numero de VUs / TPS donde empieza
+     la degradacion).
+===============================================================================
