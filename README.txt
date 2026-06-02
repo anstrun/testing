@@ -39,9 +39,5 @@ COMO EMPEZAR
     Ejercicio 2:  cd ejercicio2-karate    &&  mvn clean test
 
 
-NOTA SOBRE LOS COMENTARIOS
---------------------------
-El codigo esta comentado en un tono coloquial ecuatoriano (guayaco)
-a pedido, para explicar QUE hace cada linea de forma cercana. La
-logica y la estructura siguen las buenas practicas estandar de cada
-framework.
+
+
